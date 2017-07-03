@@ -1,11 +1,11 @@
-version: '2'
+version: '3'
 services:
   registry:
-    container_name: mirror-v2
+    container_name: registry-v2
     restart: always
     image: registry:2
     ports:
-      - 5000:5000
+      - 80:5000
     #environment:
       #REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
       #REGISTRY_HTTP_TLS_KEY: /certs/domain.key
@@ -17,3 +17,11 @@ services:
       - ./data:/var/lib/registry
       #- /path/certs:/certs
       #- /path/auth:/auth
+  portainer:
+    container_name: portainer
+    restart: always
+    image: portainer/portainer
+    ports:
+      - 9090:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
