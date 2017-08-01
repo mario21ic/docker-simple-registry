@@ -1,0 +1,58 @@
+version: '3'
+services:
+  registry:
+    image: registry:2
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels: [APP=REGISTRY]
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+    ports:
+      - "5000"
+    volumes:
+      - ./config.yml:/etc/docker/registry/config.yml
+      - ./data:/var/lib/registry
+  #portainer:
+  #  image: portainer/portainer
+  #  deploy:
+  #    mode: replicated
+  #    replicas: 1
+  #    labels: [APP=PORTAINER]
+  #    update_config:
+  #      parallelism: 2
+  #      delay: 10s
+  #    restart_policy:
+  #      condition: on-failure
+  #    placement:
+  #      constraints: [node.role == manager]
+  #  ports:
+  #    - 9090:9000
+  #  volumes:
+  #    - /var/run/docker.sock:/var/run/docker.sock
+
+  nginx:
+    image: nginx:1.11
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels: [APP=PORTAINER]
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+    volumes:
+      - ./virtual.conf:/etc/nginx/conf.d/default.conf
+      - ./logs/nginx:/var/log/nginx/
+    depends_on:
+      - registry
+    ports:
+      - 80:80
